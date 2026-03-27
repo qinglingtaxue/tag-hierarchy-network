@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>层级网络图</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #08090f;
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    header { text-align: center; padding: 15px 0; margin-bottom: 10px; }
+    header h1 { font-size: 20px; font-weight: 500; color: #a0aec0; }
+    .network-container {
+      position: relative;
+      background: #0a0c14;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #network-canvas { display: block; width: 100%; height: 750px; cursor: grab; }
+    #network-canvas:active { cursor: grabbing; }
+    .controls {
+      position: absolute; top: 12px; right: 12px;
+      display: flex; gap: 6px;
+    }
+    .controls button {
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(20, 25, 40, 0.8);
+      color: #94a3b8; border-radius: 6px;
+      cursor: pointer; font-size: 16px;
+    }
+    .controls button:hover { background: rgba(50, 60, 90, 0.8); color: #e2e8f0; }
+    .tooltip {
+      position: fixed;
+      background: rgba(10, 12, 20, 0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; padding: 10px 14px;
+      font-size: 12px; pointer-events: none;
+      opacity: 0; z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .tooltip.visible { opacity: 1; }
+    .tooltip-title { font-weight: 600; color: #f1f5f9; margin-bottom: 3px; }
+    .tooltip-content { color: #94a3b8; font-size: 11px; }
+    .findings-panel {
+      margin-top: 15px;
+      background: rgba(10, 12, 20, 0.8);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .findings-header { font-size: 14px; font-weight: 500; color: #cbd5e1; margin-bottom: 12px; }
+    .category { padding: 10px 12px; background: rgba(25, 30, 50, 0.5); border-radius: 6px; margin-bottom: 8px; }
+    .category-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 13px; }
+    .category-medal { font-size: 16px; }
+    .category-title { font-weight: 500; color: #e2e8f0; }
+    .category-tags { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+    .category-action { margin-top: 6px; font-size: 11px; color: #fbbf24; }
+    .findings-summary { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 11px; color: #64748b; }
+    .legend-panel {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(10, 12, 20, 0.92);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 12px 14px;
+      font-size: 11px; backdrop-filter: blur(8px);
+      min-width: 140px;
+    }
+    .legend-title { font-weight: 600; color: #e2e8f0; margin-bottom: 10px; font-size: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: #a0aec0; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .legend-label { flex: 1; }
+    .legend-tip { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); color: #64748b; font-size: 10px; line-height: 1.5; }
+    .loading { text-align: center; padding: 100px 20px; color: #64748b; }
+    .error { text-align: center; padding: 40px 20px; color: #ef4444; background: rgba(239, 68, 68, 0.1); border-radius: 8px; margin: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header><h1 id="chart-title">层级网络图</h1></header>
+    <div class="network-container">
+      <canvas id="network-canvas"></canvas>
+      <div class="controls">
+        <button id="zoom-in">+</button>
+        <button id="zoom-out">−</button>
+        <button id="reset">⟲</button>
+      </div>
+      <div class="tooltip" id="tooltip">
+        <div class="tooltip-title"></div>
+        <div class="tooltip-content"></div>
+      </div>
+      <div class="legend-panel" id="legend-panel"></div>
+    </div>
+    <div class="findings-panel">
+      <div class="findings-header">💡 核心发现</div>
+      <div id="findings-content"><div class="loading">加载中...</div></div>
+      <div class="findings-summary" id="findings-summary"></div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ========== 通用层级网络图 ==========
+     *
+     * 数据加载方式（按优先级）：
+     * 1. URL 参数：?data=your-data.json
+     * 2. 全局变量：window.HIERARCHY_DATA = { nodes: [...], edges: [...] }
+     * 3. 全局变量：window.HIERARCHY_CONFIG = { title: '...', levels: [...] }
+     * 4. 默认：加载 data.json
+     *
+     * 数据格式：
+     * {
+     *   nodes: [
+     *     { id: "唯一ID", label: "显示名称", value: 100, level: 0, parent: null },
+     *     { id: "子节点", label: "子节点", value: 50, level: 1, parent: "唯一ID" },
+     *   ],
+     *   edges: [] // 可选，会自动根据 parent 生成
+     * }
+     */
+
+    // ========== 默认配置 ==========
+    const DEFAULT_CONFIG = {
+      title: '组织技能图谱',
+      valueLabel: '规模',
+      levels: [
+        { name: '部门', color: 'hsl(45, 70%, 58%)' },      // 金色（柔和）
+        { name: '方向', color: 'hsl(200, 45%, 70%)' },     // 浅蓝
+        { name: '技能', color: 'hsl(140, 40%, 60%)' },     // 浅绿
+        { name: '细分', color: 'hsl(210, 35%, 75%)' },     // 灰蓝
+        { name: '工具', color: 'hsl(220, 25%, 80%)' },     // 浅灰蓝
+      ],
+      tips: [
+        '悬停节点查看关系链',
+        '节点越大 = 规模越大',
+        '越靠近中心 = 层级越高',
+      ],
+      actionTemplate: '核心分支: "{root}"',
+    };
+
+    // ========== 示例数据（当没有外部数据时使用）==========
+    // 示例：科技公司组织架构 + 技能树混合
+    const DEMO_DATA = {
+      nodes: [
+        // L0 核心 - 顶层部门/领域
+        { id: "tech", label: "技术部", value: 500, level: 0, parent: null },
+        { id: "product", label: "产品部", value: 320, level: 0, parent: null },
+        { id: "design", label: "设计部", value: 180, level: 0, parent: null },
+        // L1 - 二级部门/方向
+        { id: "frontend", label: "前端", value: 120, level: 1, parent: "tech" },
+        { id: "backend", label: "后端", value: 150, level: 1, parent: "tech" },
+        { id: "devops", label: "DevOps", value: 80, level: 1, parent: "tech" },
+        { id: "data", label: "数据", value: 100, level: 1, parent: "tech" },
+        { id: "pm", label: "产品经理", value: 90, level: 1, parent: "product" },
+        { id: "ops", label: "运营", value: 85, level: 1, parent: "product" },
+        { id: "ux", label: "用户体验", value: 70, level: 1, parent: "design" },
+        { id: "visual", label: "视觉设计", value: 60, level: 1, parent: "design" },
+        // L2 - 具体技能/职能
+        { id: "react", label: "React", value: 65, level: 2, parent: "frontend" },
+        { id: "vue", label: "Vue", value: 55, level: 2, parent: "frontend" },
+        { id: "node", label: "Node.js", value: 70, level: 2, parent: "backend" },
+        { id: "python", label: "Python", value: 80, level: 2, parent: "backend" },
+        { id: "k8s", label: "Kubernetes", value: 45, level: 2, parent: "devops" },
+        { id: "docker", label: "Docker", value: 50, level: 2, parent: "devops" },
+        { id: "ml", label: "机器学习", value: 60, level: 2, parent: "data" },
+        { id: "bi", label: "BI分析", value: 40, level: 2, parent: "data" },
+        { id: "research", label: "用户研究", value: 35, level: 2, parent: "ux" },
+        { id: "prototype", label: "原型设计", value: 35, level: 2, parent: "ux" },
+        // L3 - 细分技能
+        { id: "hooks", label: "React Hooks", value: 30, level: 3, parent: "react" },
+        { id: "nextjs", label: "Next.js", value: 28, level: 3, parent: "react" },
+        { id: "fastapi", label: "FastAPI", value: 35, level: 3, parent: "python" },
+        { id: "django", label: "Django", value: 32, level: 3, parent: "python" },
+        { id: "express", label: "Express", value: 30, level: 3, parent: "node" },
+        { id: "nlp", label: "NLP", value: 25, level: 3, parent: "ml" },
+        { id: "cv", label: "计算机视觉", value: 28, level: 3, parent: "ml" },
+        { id: "helm", label: "Helm", value: 22, level: 3, parent: "k8s" },
+        // L4 - 最细粒度
+        { id: "zustand", label: "Zustand", value: 15, level: 4, parent: "hooks" },
+        { id: "swr", label: "SWR", value: 12, level: 4, parent: "hooks" },
+        { id: "langchain", label: "LangChain", value: 18, level: 4, parent: "nlp" },
+        { id: "transformer", label: "Transformer", value: 20, level: 4, parent: "nlp" },
+        { id: "yolo", label: "YOLO", value: 16, level: 4, parent: "cv" },
+        { id: "pydantic", label: "Pydantic", value: 14, level: 4, parent: "fastapi" },
+      ],
+      edges: []
+    };
+
+    // ========== 全局状态 ==========
+    let graphData = null;
+    let graphConfig = null;
+
+    // ========== 数据加载 ==========
+    async function loadData() {
+      // 1. 检查 URL 参数
+      const urlParams = new URLSearchParams(window.location.search);
+      const dataUrl = urlParams.get('data');
+
+      // 2. 检查全局变量
+      const globalData = window.HIERARCHY_DATA;
+      const globalConfig = window.HIERARCHY_CONFIG;
+
+      try {
+        if (dataUrl) {
+          // 从 URL 加载
+          const resp = await fetch(dataUrl);
+          if (!resp.ok) throw new Error(`加载失败: ${resp.status}`);
+          graphData = await resp.json();
+        } else if (globalData) {
+          // 使用全局变量
+          graphData = globalData;
+        } else {
+          // 尝试加载 data.json
+          try {
+            const resp = await fetch('data.json');
+            if (resp.ok) {
+              graphData = await resp.json();
+            } else {
+              graphData = DEMO_DATA;
+            }
+          } catch {
+            graphData = DEMO_DATA;
+          }
+        }
+
+        // 合并配置
+        graphConfig = { ...DEFAULT_CONFIG, ...globalConfig };
+
+        // 验证和处理数据
+        processData();
+        return true;
+      } catch (err) {
+        showError(err.message);
+        return false;
+      }
+    }
+
+    function processData() {
+      // 兼容 freq 和 value 字段
+      graphData.nodes.forEach(n => {
+        if (n.freq !== undefined && n.value === undefined) n.value = n.freq;
+        if (n.value !== undefined && n.freq === undefined) n.freq = n.value;
+      });
+
+      // 自动生成边（如果没有提供）
+      if (!graphData.edges || graphData.edges.length === 0) {
+        graphData.edges = [];
+        graphData.nodes.forEach(node => {
+          if (node.parent) {
+            const parent = graphData.nodes.find(n => n.id === node.parent);
+            if (parent && parent.level === node.level - 1) {
+              graphData.edges.push({
+                source: node.parent,
+                target: node.id,
+                weight: Math.min(node.value, parent.value)
+              });
+            }
+          }
+        });
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('findings-content').innerHTML =
+        `<div class="error">❌ ${msg}</div>`;
+    }
+
+    // ========== 图例渲染 ==========
+    function renderLegend() {
+      const levels = graphConfig.levels;
+      const tips = graphConfig.tips;
+
+      document.getElementById('legend-panel').innerHTML = `
+        <div class="legend-title">层级说明</div>
+        ${levels.map(l => `
+          <div class="legend-item">
+            <div class="legend-dot" style="background: ${l.color}; box-shadow: 0 0 6px ${l.color};"></div>
+            <span class="legend-label">${l.name}</span>
+          </div>
+        `).join('')}
+        <div class="legend-tip">${tips.join('<br>')}</div>
+      `;
+    }
+
+    // ========== 背景星星 ==========
+    const stars = [];
+    for (let i = 0; i < 200; i++) {
+      stars.push({
+        x: Math.random(),
+        y: Math.random(),
+        size: 0.3 + Math.random() * 1.2,
+        alpha: 0.2 + Math.random() * 0.5
+      });
+    }
+
+    // ========== 颜色工具 ==========
+    function hslToHex(hslStr) {
+      const match = hslStr.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+      if (!match) return '#888888';
+      let [, h, s, l] = match.map(Number);
+      s /= 100; l /= 100;
+      const a = s * Math.min(l, 1 - l);
+      const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+      };
+      return `#${f(0)}${f(8)}${f(4)}`;
+    }
+
+    function getNodeColor(node) {
+      const level = Math.min(node.level, graphConfig.levels.length - 1);
+      return hslToHex(graphConfig.levels[level].color);
+    }
+
+    function getNodeSize(node, maxValue) {
+      const norm = node.value / maxValue;
+      // 节点更小更精致
+      return 3 + norm * 10;
+    }
+
+    // ========== 弧线布局（彗星尾效果）==========
+    const LEVEL_RADII = [
+      [20, 60],    // L0 核心
+      [80, 130],   // L1
+      [150, 210],  // L2
+      [230, 300],  // L3
+      [320, 400],  // L4
+    ];
+
+    class RadialLayout {
+      constructor(nodes, edges, width, height) {
+        this.nodes = nodes;
+        this.edges = edges;
+        this.cx = width / 2;
+        this.cy = height / 2;
+
+        const maxValue = Math.max(...nodes.map(n => n.value));
+
+        // 1. 找到所有根节点（L0）
+        const roots = nodes.filter(n => n.level === 0);
+
+        // 2. 为每个根节点分配一个主方向角度
+        const angleStep = (Math.PI * 2) / roots.length;
+        const rootAngles = {};
+        roots.forEach((root, i) => {
+          // 添加一点随机偏移，避免太规则
+          rootAngles[root.id] = angleStep * i + (Math.random() - 0.5) * 0.3;
+        });
+
+        // 3. 找到每个节点的根祖先
+        const getRoot = (node) => {
+          let current = node;
+          while (current.parent) {
+            const parent = nodes.find(n => n.id === current.parent);
+            if (!parent) break;
+            current = parent;
+          }
+          return current.id;
+        };
+
+        // 4. 按根祖先分组
+        const groups = {};
+        nodes.forEach(node => {
+          const rootId = getRoot(node);
+          if (!groups[rootId]) groups[rootId] = [];
+          groups[rootId].push(node);
+        });
+
+        // 5. 为每个组内的节点分配位置（沿弧线分布）
+        Object.entries(groups).forEach(([rootId, groupNodes]) => {
+          const baseAngle = rootAngles[rootId] || 0;
+
+          // 按层级排序
+          const byLevel = {};
+          groupNodes.forEach(n => {
+            if (!byLevel[n.level]) byLevel[n.level] = [];
+            byLevel[n.level].push(n);
+          });
+
+          // 每个层级的节点沿弧线分布
+          Object.entries(byLevel).forEach(([level, levelNodes]) => {
+            const lvl = parseInt(level);
+            const [minR, maxR] = LEVEL_RADII[Math.min(lvl, LEVEL_RADII.length - 1)];
+
+            // 弧线扩散角度（层级越深，扩散越大）
+            const spreadAngle = 0.15 + lvl * 0.12;
+
+            levelNodes.forEach((node, i) => {
+              // 沿弧线分布
+              const count = levelNodes.length;
+              const angleOffset = count === 1 ? 0 :
+                (i / (count - 1) - 0.5) * spreadAngle * 2;
+
+              const angle = baseAngle + angleOffset + (Math.random() - 0.5) * 0.1;
+              const radius = minR + Math.random() * (maxR - minR);
+
+              node.x = this.cx + Math.cos(angle) * radius;
+              node.y = this.cy + Math.sin(angle) * radius;
+              node.size = getNodeSize(node, maxValue);
+              node.color = getNodeColor(node);
+            });
+          });
+        });
+
+        // 6. 力模拟防止重叠
+        this.simulate(80);
+      }
+
+      simulate(iterations) {
+        for (let i = 0; i < iterations; i++) this.tick(1 - i / iterations);
+        // 确保所有节点在边界内
+        this.clampAllToBounds();
+      }
+
+      clampAllToBounds() {
+        const padding = 30; // 边距
+        this.nodes.forEach(node => {
+          const minX = node.size + padding;
+          const maxX = this.cx * 2 - node.size - padding;
+          const minY = node.size + padding;
+          const maxY = this.cy * 2 - node.size - padding;
+          node.x = Math.max(minX, Math.min(maxX, node.x));
+          node.y = Math.max(minY, Math.min(maxY, node.y));
+        });
+      }
+
+      tick(alpha) {
+        const nodes = this.nodes;
+        const padding = 30;
+        const minX = padding;
+        const maxX = this.cx * 2 - padding;
+        const minY = padding;
+        const maxY = this.cy * 2 - padding;
+
+        // 节点之间的斥力（轻微）
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const dx = nodes[j].x - nodes[i].x;
+            const dy = nodes[j].y - nodes[i].y;
+            const d = Math.sqrt(dx * dx + dy * dy) || 1;
+            const minDist = nodes[i].size + nodes[j].size + 5;
+            if (d < minDist) {
+              const f = (minDist - d) * 0.3 * alpha;
+              nodes[i].x -= (dx / d) * f;
+              nodes[i].y -= (dy / d) * f;
+              nodes[j].x += (dx / d) * f;
+              nodes[j].y += (dy / d) * f;
+            }
+          }
+        }
+
+        // 每次迭代后限制边界
+        nodes.forEach(node => {
+          node.x = Math.max(minX + node.size, Math.min(maxX - node.size, node.x));
+          node.y = Math.max(minY + node.size, Math.min(maxY - node.size, node.y));
+        });
+      }
+    }
+
+    // ========== 网络图渲染 ==========
+    class NetworkGraph {
+      constructor(canvas, data) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.data = data;
+        this.scale = 1;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.isDragging = false;
+        this.hoveredNode = null;
+        this.draggedNode = null;
+        this.lineage = null;
+
+        this.resize();
+        this.bindEvents();
+        this.render();
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        this.width = rect.width;
+        this.height = 750;
+        this.canvas.width = this.width * dpr;
+        this.canvas.height = this.height * dpr;
+        this.canvas.style.width = this.width + 'px';
+        this.canvas.style.height = this.height + 'px';
+        new RadialLayout(this.data.nodes, this.data.edges, this.width, this.height);
+      }
+
+      bindEvents() {
+        let lx, ly;
+
+        this.canvas.onmousedown = e => {
+          const rect = this.canvas.getBoundingClientRect();
+          const x = (e.clientX - rect.left - this.offsetX) / this.scale;
+          const y = (e.clientY - rect.top - this.offsetY) / this.scale;
+
+          for (const node of this.data.nodes) {
+            if (Math.hypot(x - node.x, y - node.y) < node.size + 5) {
+              this.draggedNode = node;
+              break;
+            }
+          }
+
+          this.isDragging = true;
+          lx = e.clientX;
+          ly = e.clientY;
+        };
+
+        this.canvas.onmousemove = e => {
+          if (this.isDragging) {
+            const dx = (e.clientX - lx) / this.scale;
+            const dy = (e.clientY - ly) / this.scale;
+
+            if (this.draggedNode) {
+              // 更新位置
+              this.draggedNode.x += dx;
+              this.draggedNode.y += dy;
+              // 限制在边界内
+              const padding = 30;
+              const node = this.draggedNode;
+              const minX = node.size + padding;
+              const maxX = this.width - node.size - padding;
+              const minY = node.size + padding;
+              const maxY = this.height - node.size - padding;
+              node.x = Math.max(minX, Math.min(maxX, node.x));
+              node.y = Math.max(minY, Math.min(maxY, node.y));
+            } else {
+              this.offsetX += e.clientX - lx;
+              this.offsetY += e.clientY - ly;
+            }
+
+            lx = e.clientX;
+            ly = e.clientY;
+            this.render();
+          } else {
+            this.checkHover(e);
+          }
+        };
+
+        this.canvas.onmouseup = () => { this.isDragging = false; this.draggedNode = null; };
+        this.canvas.onmouseleave = () => { this.isDragging = false; this.draggedNode = null; this.hoveredNode = null; this.lineage = null; this.hideTooltip(); this.render(); };
+        this.canvas.onwheel = e => { e.preventDefault(); this.scale = Math.max(0.3, Math.min(4, this.scale + (e.deltaY > 0 ? -0.1 : 0.1))); this.render(); };
+        document.getElementById('zoom-in').onclick = () => { this.scale = Math.min(4, this.scale + 0.3); this.render(); };
+        document.getElementById('zoom-out').onclick = () => { this.scale = Math.max(0.3, this.scale - 0.3); this.render(); };
+        document.getElementById('reset').onclick = () => { this.scale = 1; this.offsetX = 0; this.offsetY = 0; this.render(); };
+      }
+
+      getLineage(node) {
+        if (!node) return new Set();
+
+        const lineage = new Set([node.id]);
+        const nodes = this.data.nodes;
+
+        let current = node;
+        while (current.parent) {
+          lineage.add(current.parent);
+          current = nodes.find(n => n.id === current.parent);
+          if (!current) break;
+        }
+
+        const findDescendants = (parentId) => {
+          nodes.forEach(n => {
+            if (n.parent === parentId && !lineage.has(n.id)) {
+              lineage.add(n.id);
+              findDescendants(n.id);
+            }
+          });
+        };
+        findDescendants(node.id);
+
+        return lineage;
+      }
+
+      checkHover(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left - this.offsetX) / this.scale;
+        const y = (e.clientY - rect.top - this.offsetY) / this.scale;
+        let found = null;
+        for (const node of this.data.nodes) {
+          if (Math.hypot(x - node.x, y - node.y) < node.size + 5) { found = node; break; }
+        }
+        if (found !== this.hoveredNode) {
+          this.hoveredNode = found;
+          this.lineage = this.getLineage(found);
+          this.render();
+          found ? this.showTooltip(e, found) : this.hideTooltip();
+        }
+      }
+
+      showTooltip(e, node) {
+        const t = document.getElementById('tooltip');
+        t.querySelector('.tooltip-title').textContent = node.label;
+        t.querySelector('.tooltip-content').textContent = `${graphConfig.valueLabel}: ${Math.round(node.value)}`;
+        t.style.left = (e.clientX + 12) + 'px';
+        t.style.top = (e.clientY + 12) + 'px';
+        t.classList.add('visible');
+      }
+
+      hideTooltip() { document.getElementById('tooltip').classList.remove('visible'); }
+
+      render() {
+        const ctx = this.ctx;
+        const dpr = window.devicePixelRatio || 1;
+        const cw = this.canvas.width;
+        const ch = this.canvas.height;
+        const cx = cw / 2;
+        const cy = ch / 2;
+
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        // 径向渐变背景（中心亮、边缘暗）
+        const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(cw, ch) * 0.7);
+        bgGrad.addColorStop(0, '#1a2540');
+        bgGrad.addColorStop(0.5, '#0f1525');
+        bgGrad.addColorStop(1, '#080a12');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, cw, ch);
+
+        // 中心发光圆环
+        const ringRadius = 180 * dpr;
+        const ringGrad = ctx.createRadialGradient(cx, cy, ringRadius - 30 * dpr, cx, cy, ringRadius + 40 * dpr);
+        ringGrad.addColorStop(0, 'transparent');
+        ringGrad.addColorStop(0.3, 'rgba(100, 140, 200, 0.03)');
+        ringGrad.addColorStop(0.5, 'rgba(120, 160, 220, 0.08)');
+        ringGrad.addColorStop(0.7, 'rgba(100, 140, 200, 0.03)');
+        ringGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = ringGrad;
+        ctx.fillRect(0, 0, cw, ch);
+
+        // 圆环线条
+        ctx.beginPath();
+        ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(140, 170, 220, 0.15)';
+        ctx.lineWidth = 2 * dpr;
+        ctx.stroke();
+
+        // 中心光点
+        const centerGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60 * dpr);
+        centerGlow.addColorStop(0, 'rgba(180, 200, 240, 0.4)');
+        centerGlow.addColorStop(0.3, 'rgba(140, 170, 220, 0.15)');
+        centerGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = centerGlow;
+        ctx.fillRect(cx - 80 * dpr, cy - 80 * dpr, 160 * dpr, 160 * dpr);
+
+        // 背景星星
+        stars.forEach(star => {
+          ctx.beginPath();
+          ctx.arc(star.x * cw, star.y * ch, star.size * dpr * 0.8, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180, 195, 220, ${star.alpha * 0.6})`;
+          ctx.fill();
+        });
+        ctx.restore();
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        ctx.translate(this.offsetX, this.offsetY);
+        ctx.scale(this.scale, this.scale);
+
+        // 边（极细、极淡）
+        this.data.edges.forEach(e => {
+          const s = this.data.nodes.find(n => n.id === e.source);
+          const t = this.data.nodes.find(n => n.id === e.target);
+          if (!s || !t) return;
+
+          const inLineage = this.lineage && this.lineage.has(s.id) && this.lineage.has(t.id);
+
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(t.x, t.y);
+
+          if (this.hoveredNode) {
+            if (inLineage) {
+              ctx.strokeStyle = 'rgba(200, 180, 140, 0.5)';
+              ctx.lineWidth = 1;
+            } else {
+              ctx.strokeStyle = 'rgba(100, 120, 160, 0.02)';
+              ctx.lineWidth = 0.3;
+            }
+          } else {
+            ctx.strokeStyle = 'rgba(120, 140, 180, 0.08)';
+            ctx.lineWidth = 0.3;
+          }
+          ctx.stroke();
+        });
+
+        // 节点（精致的发光效果）
+        const maxValue = Math.max(...this.data.nodes.map(n => n.value));
+
+        this.data.nodes.forEach(node => {
+          const hovered = this.hoveredNode?.id === node.id;
+          const inLineage = this.lineage && this.lineage.has(node.id);
+          const isLarge = node.value > maxValue * 0.5;
+
+          ctx.save();
+
+          // 外发光
+          if (hovered || inLineage || isLarge) {
+            const glowSize = node.size * (hovered ? 3 : 2);
+            const glowGrad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, glowSize);
+            glowGrad.addColorStop(0, node.color + '40');
+            glowGrad.addColorStop(0.4, node.color + '15');
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 主节点
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+
+          // 节点渐变填充
+          const nodeGrad = ctx.createRadialGradient(
+            node.x - node.size * 0.3, node.y - node.size * 0.3, 0,
+            node.x, node.y, node.size * 1.2
+          );
+          nodeGrad.addColorStop(0, '#ffffff');
+          nodeGrad.addColorStop(0.3, node.color);
+          nodeGrad.addColorStop(1, node.color + 'cc');
+          ctx.fillStyle = nodeGrad;
+
+          if (this.hoveredNode && !hovered && !inLineage) {
+            ctx.globalAlpha = 0.35;
+          }
+          ctx.fill();
+          ctx.restore();
+
+          // 标签（仅 hover）
+          if (hovered) {
+            ctx.save();
+            ctx.font = 'bold 11px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = 6;
+            ctx.fillText(node.label, node.x, node.y + node.size + 14);
+            ctx.restore();
+          }
+        });
+
+        ctx.restore();
+      }
+    }
+
+    // ========== 核心发现 ==========
+    function renderFindings() {
+      const nodes = graphData.nodes;
+      const roots = nodes.filter(n => n.level === 0).sort((a, b) => b.value - a.value);
+
+      function getDescendants(rootId, level) {
+        return nodes.filter(n => {
+          if (n.level !== level) return false;
+          let current = n;
+          while (current.parent) {
+            if (current.parent === rootId) return true;
+            current = nodes.find(p => p.id === current.parent);
+            if (!current) break;
+          }
+          return false;
+        });
+      }
+
+      const medals = ['🥇', '🥈', '🥉'];
+      const levelNames = graphConfig.levels.map(l => l.name.replace(/^L\d\s*/, ''));
+
+      document.getElementById('findings-content').innerHTML = roots.slice(0, 3).map((root, i) => {
+        const l1 = getDescendants(root.id, 1);
+        const l2 = nodes.filter(n => n.level === 2 && l1.some(p => p.id === n.parent));
+        const l3 = nodes.filter(n => n.level === 3 && l2.some(p => p.id === n.parent));
+
+        return `<div class="category">
+          <div class="category-header"><span class="category-medal">${medals[i]}</span><span class="category-title">【${root.label}】分支</span></div>
+          <div class="category-tags">
+            <strong>${levelNames[0] || '核心'}：</strong>"${root.label}"（${Math.round(root.value)}）<br>
+            ${l1.length ? `<strong>${levelNames[1] || '重要'}：</strong>${l1.slice(0, 5).map(n => `${n.label}（${n.value}）`).join('、')}${l1.length > 5 ? `...等 ${l1.length} 个` : ''}<br>` : ''}
+            ${l2.length ? `<strong>${levelNames[2] || '普通'}：</strong>${l2.slice(0, 4).map(n => `${n.label}（${n.value}）`).join('、')}${l2.length > 4 ? `...等 ${l2.length} 个` : ''}` : ''}
+          </div>
+          ${i === 0 ? `<div class="category-action">→ ${graphConfig.actionTemplate.replace('{root}', root.label)}</div>` : ''}
+        </div>`;
+      }).join('');
+
+      const hierarchyCount = nodes.filter(n => n.parent).length;
+      document.getElementById('findings-summary').innerHTML =
+        `📊 共 ${roots.length} 个${levelNames[0] || '核心'}分支，${hierarchyCount} 个节点存在层级关系`;
+    }
+
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', async () => {
+      const loaded = await loadData();
+      if (!loaded) return;
+
+      // 设置标题
+      document.getElementById('chart-title').textContent = graphConfig.title;
+      document.title = graphConfig.title;
+
+      // 渲染
+      renderLegend();
+      new NetworkGraph(document.getElementById('network-canvas'), graphData);
+      renderFindings();
+    });
+  </script>
+</body>
+</html>

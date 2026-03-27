@@ -1,0 +1,906 @@
+{
+  "nodes": [
+    {
+      "id": "健康",
+      "label": "健康",
+      "freq": "871",
+      "avgViews": 117465,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "中医",
+      "label": "中医",
+      "freq": "535",
+      "avgViews": 44625,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "养生",
+      "label": "养生",
+      "freq": "429",
+      "avgViews": 86135,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "养生有道",
+      "label": "养生有道",
+      "freq": "403",
+      "avgViews": 58011,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "疾病",
+      "label": "疾病",
+      "freq": "343",
+      "avgViews": 43198,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "養生",
+      "label": "養生",
+      "freq": "333",
+      "avgViews": 159769,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "保健",
+      "label": "保健",
+      "freq": "299",
+      "avgViews": 89140,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "中老年",
+      "label": "中老年",
+      "freq": "261",
+      "avgViews": 18144,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "中药",
+      "label": "中药",
+      "freq": "252",
+      "avgViews": 13644,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "养生堂",
+      "label": "养生堂",
+      "freq": "233",
+      "avgViews": 16369,
+      "level": 0,
+      "parent": null
+    },
+    {
+      "id": "中医药",
+      "label": "中医药",
+      "freq": "230",
+      "avgViews": 14933,
+      "level": 1,
+      "parent": "中医"
+    },
+    {
+      "id": "长寿",
+      "label": "长寿",
+      "freq": "207",
+      "avgViews": 94526,
+      "level": 1,
+      "parent": "健康"
+    },
+    {
+      "id": "中醫",
+      "label": "中醫",
+      "freq": "196",
+      "avgViews": 71943,
+      "level": 1,
+      "parent": null
+    },
+    {
+      "id": "情感",
+      "label": "情感",
+      "freq": "182",
+      "avgViews": 117415,
+      "level": 1,
+      "parent": "健康"
+    },
+    {
+      "id": "故事",
+      "label": "故事",
+      "freq": "173",
+      "avgViews": 121377,
+      "level": 1,
+      "parent": "健康"
+    },
+    {
+      "id": "感人",
+      "label": "感人",
+      "freq": "167",
+      "avgViews": 119995,
+      "level": 1,
+      "parent": "健康"
+    },
+    {
+      "id": "调理",
+      "label": "调理",
+      "freq": "158",
+      "avgViews": 119749,
+      "level": 1,
+      "parent": "养生"
+    },
+    {
+      "id": "保养",
+      "label": "保养",
+      "freq": "158",
+      "avgViews": 119736,
+      "level": 1,
+      "parent": "中医"
+    },
+    {
+      "id": "養生有道",
+      "label": "養生有道",
+      "freq": "158",
+      "avgViews": 119888,
+      "level": 1,
+      "parent": "养生有道"
+    },
+    {
+      "id": "调养",
+      "label": "调养",
+      "freq": "157",
+      "avgViews": 120490,
+      "level": 1,
+      "parent": "保健"
+    },
+    {
+      "id": "健身",
+      "label": "健身",
+      "freq": "149",
+      "avgViews": 402606,
+      "level": 1,
+      "parent": null
+    },
+    {
+      "id": "才艺",
+      "label": "才艺",
+      "freq": "147",
+      "avgViews": 128616,
+      "level": 1,
+      "parent": "养生"
+    },
+    {
+      "id": "唱歌",
+      "label": "唱歌",
+      "freq": "147",
+      "avgViews": 128616,
+      "level": 1,
+      "parent": null
+    },
+    {
+      "id": "長壽",
+      "label": "長壽",
+      "freq": "124",
+      "avgViews": 53473,
+      "level": 1,
+      "parent": null
+    },
+    {
+      "id": "健康飲食",
+      "label": "健康飲食",
+      "freq": "119",
+      "avgViews": 97826,
+      "level": 1,
+      "parent": null
+    },
+    {
+      "id": "健康生活",
+      "label": "健康生活",
+      "freq": "112",
+      "avgViews": 30629,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "健康養生",
+      "label": "健康養生",
+      "freq": "109",
+      "avgViews": 130037,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "健康知識",
+      "label": "健康知識",
+      "freq": "109",
+      "avgViews": 111738,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "健康2.0",
+      "label": "健康2.0",
+      "freq": "108",
+      "avgViews": 143705,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "饮食",
+      "label": "饮食",
+      "freq": "105",
+      "avgViews": 5704,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "中医养生",
+      "label": "中医养生",
+      "freq": "105",
+      "avgViews": 12222,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "中老年健康",
+      "label": "中老年健康",
+      "freq": "103",
+      "avgViews": 142196,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "居家運動",
+      "label": "居家運動",
+      "freq": "102",
+      "avgViews": 404789,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "運動",
+      "label": "運動",
+      "freq": "102",
+      "avgViews": 397233,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "減肥",
+      "label": "減肥",
+      "freq": "89",
+      "avgViews": 326869,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "瘦身",
+      "label": "瘦身",
+      "freq": "82",
+      "avgViews": 517281,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "中国",
+      "label": "中国",
+      "freq": "82",
+      "avgViews": 36084,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "yoga",
+      "label": "yoga",
+      "freq": "81",
+      "avgViews": 377631,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "醫學",
+      "label": "醫學",
+      "freq": "79",
+      "avgViews": 13280,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "食譜",
+      "label": "食譜",
+      "freq": "79",
+      "avgViews": 192792,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "鄭凱云",
+      "label": "鄭凱云",
+      "freq": "78",
+      "avgViews": 202179,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "料理",
+      "label": "料理",
+      "freq": "78",
+      "avgViews": 188599,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "瑜珈教學",
+      "label": "瑜珈教學",
+      "freq": "77",
+      "avgViews": 395076,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "有氧運動",
+      "label": "有氧運動",
+      "freq": "76",
+      "avgViews": 435366,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "医疗",
+      "label": "医疗",
+      "freq": "76",
+      "avgViews": 3336,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "老年人",
+      "label": "老年人",
+      "freq": "76",
+      "avgViews": 145169,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "食療",
+      "label": "食療",
+      "freq": "76",
+      "avgViews": 24404,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "老人",
+      "label": "老人",
+      "freq": "75",
+      "avgViews": 38719,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "營養",
+      "label": "營養",
+      "freq": "71",
+      "avgViews": 12222,
+      "level": 2,
+      "parent": null
+    },
+    {
+      "id": "健康2點靈",
+      "label": "健康2點靈",
+      "freq": "71",
+      "avgViews": 205273,
+      "level": 2,
+      "parent": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "中医",
+      "target": "健康",
+      "weight": "496"
+    },
+    {
+      "source": "健康",
+      "target": "养生有道",
+      "weight": "403"
+    },
+    {
+      "source": "中医",
+      "target": "养生有道",
+      "weight": "378"
+    },
+    {
+      "source": "健康",
+      "target": "养生",
+      "weight": "346"
+    },
+    {
+      "source": "健康",
+      "target": "疾病",
+      "weight": "340"
+    },
+    {
+      "source": "中医",
+      "target": "养生",
+      "weight": "312"
+    },
+    {
+      "source": "中医",
+      "target": "疾病",
+      "weight": "278"
+    },
+    {
+      "source": "健康",
+      "target": "養生",
+      "weight": "274"
+    },
+    {
+      "source": "保健",
+      "target": "健康",
+      "weight": "273"
+    },
+    {
+      "source": "保健",
+      "target": "养生",
+      "weight": "262"
+    },
+    {
+      "source": "中老年",
+      "target": "健康",
+      "weight": "257"
+    },
+    {
+      "source": "中医",
+      "target": "中药",
+      "weight": "250"
+    },
+    {
+      "source": "中老年",
+      "target": "养生有道",
+      "weight": "249"
+    },
+    {
+      "source": "中药",
+      "target": "健康",
+      "weight": "244"
+    },
+    {
+      "source": "中医",
+      "target": "保健",
+      "weight": "239"
+    },
+    {
+      "source": "中药",
+      "target": "疾病",
+      "weight": "236"
+    },
+    {
+      "source": "健康",
+      "target": "养生堂",
+      "weight": "233"
+    },
+    {
+      "source": "中医",
+      "target": "养生堂",
+      "weight": "233"
+    },
+    {
+      "source": "中医",
+      "target": "中老年",
+      "weight": "229"
+    },
+    {
+      "source": "中医",
+      "target": "中医药",
+      "weight": "229"
+    },
+    {
+      "source": "养生堂",
+      "target": "疾病",
+      "weight": "229"
+    },
+    {
+      "source": "中老年",
+      "target": "疾病",
+      "weight": "229"
+    },
+    {
+      "source": "中医药",
+      "target": "中药",
+      "weight": "228"
+    },
+    {
+      "source": "中药",
+      "target": "养生堂",
+      "weight": "228"
+    },
+    {
+      "source": "中老年",
+      "target": "养生堂",
+      "weight": "227"
+    },
+    {
+      "source": "中老年",
+      "target": "中药",
+      "weight": "226"
+    },
+    {
+      "source": "中医药",
+      "target": "健康",
+      "weight": "226"
+    },
+    {
+      "source": "养生有道",
+      "target": "疾病",
+      "weight": "224"
+    },
+    {
+      "source": "中医药",
+      "target": "养生有道",
+      "weight": "224"
+    },
+    {
+      "source": "中医药",
+      "target": "养生堂",
+      "weight": "224"
+    },
+    {
+      "source": "中医药",
+      "target": "中老年",
+      "weight": "224"
+    },
+    {
+      "source": "中药",
+      "target": "养生有道",
+      "weight": "224"
+    },
+    {
+      "source": "中医药",
+      "target": "疾病",
+      "weight": "224"
+    },
+    {
+      "source": "养生堂",
+      "target": "养生有道",
+      "weight": "224"
+    },
+    {
+      "source": "健康",
+      "target": "长寿",
+      "weight": "198"
+    },
+    {
+      "source": "养生",
+      "target": "养生有道",
+      "weight": "197"
+    },
+    {
+      "source": "养生",
+      "target": "长寿",
+      "weight": "196"
+    },
+    {
+      "source": "中医",
+      "target": "长寿",
+      "weight": "191"
+    },
+    {
+      "source": "保健",
+      "target": "养生有道",
+      "weight": "179"
+    },
+    {
+      "source": "养生有道",
+      "target": "长寿",
+      "weight": "177"
+    },
+    {
+      "source": "保健",
+      "target": "长寿",
+      "weight": "174"
+    },
+    {
+      "source": "健康",
+      "target": "情感",
+      "weight": "171"
+    },
+    {
+      "source": "情感",
+      "target": "故事",
+      "weight": "170"
+    },
+    {
+      "source": "健康",
+      "target": "故事",
+      "weight": "170"
+    },
+    {
+      "source": "养生",
+      "target": "情感",
+      "weight": "168"
+    },
+    {
+      "source": "养生有道",
+      "target": "故事",
+      "weight": "167"
+    },
+    {
+      "source": "养生有道",
+      "target": "情感",
+      "weight": "167"
+    },
+    {
+      "source": "健康",
+      "target": "感人",
+      "weight": "167"
+    },
+    {
+      "source": "保健",
+      "target": "感人",
+      "weight": "167"
+    },
+    {
+      "source": "情感",
+      "target": "感人",
+      "weight": "167"
+    },
+    {
+      "source": "保健",
+      "target": "故事",
+      "weight": "167"
+    },
+    {
+      "source": "养生",
+      "target": "故事",
+      "weight": "167"
+    },
+    {
+      "source": "养生有道",
+      "target": "感人",
+      "weight": "167"
+    },
+    {
+      "source": "保健",
+      "target": "情感",
+      "weight": "167"
+    },
+    {
+      "source": "养生",
+      "target": "感人",
+      "weight": "167"
+    },
+    {
+      "source": "感人",
+      "target": "故事",
+      "weight": "167"
+    },
+    {
+      "source": "中医",
+      "target": "保养",
+      "weight": "158"
+    },
+    {
+      "source": "养生",
+      "target": "调理",
+      "weight": "158"
+    },
+    {
+      "source": "健康",
+      "target": "调理",
+      "weight": "158"
+    },
+    {
+      "source": "保健",
+      "target": "保养",
+      "weight": "158"
+    },
+    {
+      "source": "保养",
+      "target": "养生",
+      "weight": "158"
+    },
+    {
+      "source": "中医",
+      "target": "调理",
+      "weight": "158"
+    },
+    {
+      "source": "保养",
+      "target": "健康",
+      "weight": "158"
+    },
+    {
+      "source": "保健",
+      "target": "调理",
+      "weight": "158"
+    },
+    {
+      "source": "保健",
+      "target": "调养",
+      "weight": "157"
+    },
+    {
+      "source": "养生",
+      "target": "调养",
+      "weight": "157"
+    },
+    {
+      "source": "健康",
+      "target": "调养",
+      "weight": "157"
+    },
+    {
+      "source": "调理",
+      "target": "长寿",
+      "weight": "157"
+    },
+    {
+      "source": "保养",
+      "target": "长寿",
+      "weight": "157"
+    },
+    {
+      "source": "保养",
+      "target": "调理",
+      "weight": "157"
+    },
+    {
+      "source": "调养",
+      "target": "调理",
+      "weight": "157"
+    },
+    {
+      "source": "调养",
+      "target": "长寿",
+      "weight": "157"
+    },
+    {
+      "source": "保养",
+      "target": "调养",
+      "weight": "157"
+    },
+    {
+      "source": "中医",
+      "target": "调养",
+      "weight": "157"
+    },
+    {
+      "source": "调理",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "养生有道",
+      "target": "调养",
+      "weight": "154"
+    },
+    {
+      "source": "养生有道",
+      "target": "调理",
+      "weight": "154"
+    },
+    {
+      "source": "养生有道",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "中医",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "保健",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "保养",
+      "target": "养生有道",
+      "weight": "154"
+    },
+    {
+      "source": "调养",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "健康",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "长寿",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "养生",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "保养",
+      "target": "養生有道",
+      "weight": "154"
+    },
+    {
+      "source": "养生",
+      "target": "才艺",
+      "weight": "147"
+    },
+    {
+      "source": "才艺",
+      "target": "故事",
+      "weight": "147"
+    },
+    {
+      "source": "感人",
+      "target": "调养",
+      "weight": "147"
+    },
+    {
+      "source": "保健",
+      "target": "才艺",
+      "weight": "147"
+    },
+    {
+      "source": "唱歌",
+      "target": "调理",
+      "weight": "147"
+    },
+    {
+      "source": "感人",
+      "target": "養生有道",
+      "weight": "147"
+    },
+    {
+      "source": "感人",
+      "target": "才艺",
+      "weight": "147"
+    },
+    {
+      "source": "唱歌",
+      "target": "调养",
+      "weight": "147"
+    },
+    {
+      "source": "感人",
+      "target": "调理",
+      "weight": "147"
+    },
+    {
+      "source": "情感",
+      "target": "才艺",
+      "weight": "147"
+    },
+    {
+      "source": "情感",
+      "target": "调理",
+      "weight": "147"
+    },
+    {
+      "source": "保养",
+      "target": "感人",
+      "weight": "147"
+    },
+    {
+      "source": "健康",
+      "target": "才艺",
+      "weight": "147"
+    },
+    {
+      "source": "情感",
+      "target": "长寿",
+      "weight": "147"
+    }
+  ]
+}
