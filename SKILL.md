@@ -2,26 +2,38 @@
 name: tag-hierarchy-network
 description: >-
   生成径向层级网络图，将父子层级数据转换为交互式可视化，用于分析层级关系和发现核心节点。适用于组织架构、知识图谱、产品分类、技能树、标签体系等场景，支持族谱高亮、弧形布局、拖拽缩放。
+license: MIT
+allowed-tools: Read Write Bash Glob
+compatibility:
+  claude-code: ">=1.0.0"
+  platforms:
+    - web
+    - desktop
 metadata:
   author: xiaosu
-  version: 1.0.1
+  version: 1.0.2
   title: 层级网络图
   description_zh: 通用径向层级网络图，弧形布局，支持任意父子层级数据可视化
-  license: MIT
-  homepage: 'https://github.com/qinglingtaxue/tag-hierarchy-network'
-  repository: 'https://github.com/qinglingtaxue/tag-hierarchy-network'
+  homepage: https://github.com/qinglingtaxue/tag-hierarchy-network
+  repository: https://github.com/qinglingtaxue/tag-hierarchy-network
+  bugs: https://github.com/qinglingtaxue/tag-hierarchy-network/issues
   keywords:
     - 可视化
     - 层级网络
     - 数据分析
     - 组织架构
     - 知识图谱
+    - d3.js
+    - 交互式图表
   category: visualization
   tags:
     - data-viz
     - hierarchy
     - network-graph
     - interactive
+  language: zh-CN
+  min-nodes: 10
+  max-nodes: 300
 ---
 
 # 层级网络图
@@ -90,7 +102,8 @@ metadata:
     { "id": "ceo", "label": "CEO", "value": 500, "level": 0, "parent": null },
     { "id": "cto", "label": "CTO", "value": 120, "level": 1, "parent": "ceo" },
     { "id": "fe-mgr", "label": "前端经理", "value": 30, "level": 2, "parent": "cto" }
-  ]
+  ],
+  "edges": []
 }
 ```
 
@@ -118,7 +131,8 @@ metadata:
     { "id": "electronics", "label": "电子产品", "value": 5000000, "level": 0, "parent": null },
     { "id": "phone", "label": "手机", "value": 3000000, "level": 1, "parent": "electronics" },
     { "id": "iphone", "label": "iPhone", "value": 1500000, "level": 2, "parent": "phone" }
-  ]
+  ],
+  "edges": []
 }
 ```
 
@@ -146,7 +160,8 @@ metadata:
     { "id": "ai", "label": "人工智能", "value": 1000, "level": 0, "parent": null },
     { "id": "ml", "label": "机器学习", "value": 500, "level": 1, "parent": "ai" },
     { "id": "nlp", "label": "NLP", "value": 200, "level": 2, "parent": "ml" }
-  ]
+  ],
+  "edges": []
 }
 ```
 
@@ -174,7 +189,8 @@ metadata:
     { "id": "frontend", "label": "前端开发", "value": 10000, "level": 0, "parent": null },
     { "id": "js", "label": "JavaScript", "value": 8000, "level": 1, "parent": "frontend" },
     { "id": "react", "label": "React", "value": 5000, "level": 2, "parent": "js" }
-  ]
+  ],
+  "edges": []
 }
 ```
 
@@ -202,7 +218,8 @@ metadata:
     { "id": "tech", "label": "科技", "value": 5000, "level": 0, "parent": null },
     { "id": "ai", "label": "AI", "value": 3000, "level": 1, "parent": "tech" },
     { "id": "chatgpt", "label": "ChatGPT", "value": 1500, "level": 2, "parent": "ai" }
-  ]
+  ],
+  "edges": []
 }
 ```
 
