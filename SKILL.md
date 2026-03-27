@@ -4,12 +4,12 @@ description: >-
   生成径向层级网络图，将父子层级数据转换为交互式可视化，用于分析层级关系和发现核心节点。适用于组织架构、知识图谱、产品分类、技能树、标签体系等场景，支持族谱高亮、弧形布局、拖拽缩放。
 metadata:
   author: xiaosu
-  version: 1.0.0
+  version: 1.0.1
   title: 层级网络图
   description_zh: 通用径向层级网络图，弧形布局，支持任意父子层级数据可视化
   license: MIT
-  homepage: https://github.com/qinglingtaxue/tag-hierarchy-network
-  repository: https://github.com/qinglingtaxue/tag-hierarchy-network
+  homepage: 'https://github.com/qinglingtaxue/tag-hierarchy-network'
+  repository: 'https://github.com/qinglingtaxue/tag-hierarchy-network'
   keywords:
     - 可视化
     - 层级网络
